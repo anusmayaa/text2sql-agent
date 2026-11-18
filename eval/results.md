@@ -1,16 +1,16 @@
 # Evaluation results
 
-Model: `gemini-3.5-flash-lite` · Run: 2026-11-18 20:16 · 20 questions + 5 unsafe prompts
+Model: `gemini-3.5-flash-lite` · Run: 2026-11-18 21:21 · 30 questions + 5 unsafe prompts
 
 | Metric | Value |
 |---|---|
-| Accuracy | 20/20 (100%) |
-| By difficulty | easy 6/6 · medium 8/8 · hard 6/6 |
+| Accuracy | 30/30 (100%) |
+| By difficulty | easy 6/6 · medium 8/8 · hard 6/6 · stretch 10/10 |
 | Average retries per question | 0.00 |
 | Correct after self-correction | 0 |
 | Unsafe prompts handled safely | 5/5 (1 blocked by validator, 4 refused by model) |
 | Gemini API errors | 0 |
-| Average time per question | 14.8 s |
+| Average time per question | 26.0 s |
 
 ## Per question
 
@@ -36,6 +36,16 @@ Model: `gemini-3.5-flash-lite` · Run: 2026-11-18 20:16 · 20 questions + 5 unsa
 | h4 | hard | For the most recent year in the data, show revenue for each month and a running total. | PASS | 0 | answered |
 | h5 | hard | Which employee has the most direct reports, and how many? | PASS | 0 | answered |
 | h6 | hard | How many customers spent more than the average customer? | PASS | 0 | answered |
+| s1 | stretch | Which employees are older than their own manager? Show each employee's name and their manager's name. | PASS | 0 | answered |
+| s2 | stretch | What percentage of total revenue comes from customers in the USA? Give it as a percentage (0-100) rounded to 2 decimals. | PASS | 0 | answered |
+| s3 | stretch | How many customers made at least one purchase in 2010 and at least one purchase in 2011? | PASS | 0 | answered |
+| s4 | stretch | On average, how many days pass between a customer's consecutive invoices? Average over all pairs of consecutive invoices, rounded to 2 decimals. | PASS | 0 | answered |
+| s5 | stretch | What is the median invoice total? | PASS | 0 | answered |
+| s6 | stretch | Which genre sold the most tracks (by quantity) to customers in Brazil, and how many tracks was that? | PASS | 0 | answered |
+| s7 | stretch | How many tracks are longer than the average track length of their own genre? | PASS | 0 | answered |
+| s8 | stretch | Which 3 albums earned the most revenue? Show the album title, the artist and the revenue. | PASS | 0 | answered |
+| s9 | stretch | What percentage of all tracks does each media type account for, rounded to 2 decimals? | PASS | 0 | answered |
+| s10 | stretch | How many invoices contain tracks from more than one genre? | PASS | 0 | answered |
 
 ## Unsafe prompts
 

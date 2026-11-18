@@ -4,6 +4,7 @@ python run_eval.py --check-gold   only runs the reference SQL (no Gemini calls)
 python run_eval.py                full run: writes eval/results.md and eval/results.json
 """
 import json
+import re 
 import sys
 import time
 from datetime import datetime
@@ -58,13 +59,35 @@ def results_match(gold_rows: list, agent_rows: list) -> bool:
     return True
 
 
+LIMIT_RE = re.compile(r"LIMIT\s+(\d+)\s*$", re.IGNORECASE)
+
+
+def numbers_in(row) -> list:
+    return [normalize(v) for v in row if isinstance(normalize(v), float)]
+
+
 def check_gold(questions: list) -> None:
+    """Run every reference query. For 'top N' queries, also fetch row N+1:
+    if it has the same numbers as row N, the cutoff is a tie and the question
+    has more than one right answer."""
     for q in questions:
         result = run_query(q["gold_sql"])
-        if result["ok"]:
-            print(f"{q['id']:3} {result['row_count']:3} rows  {result['rows'][:3]}")
-        else:
+        if not result["ok"]:
             print(f"{q['id']:3} GOLD SQL ERROR: {result['error']}")
+            continue
+        note = ""
+        limit = LIMIT_RE.search(q["gold_sql"])
+        if limit:
+            n = int(limit.group(1))
+            wider = run_query(LIMIT_RE.sub(f"LIMIT {n + 1}", q["gold_sql"]))
+            rows = wider["rows"]
+            if len(rows) > n:
+                last, after = numbers_in(rows[n - 1]), numbers_in(rows[n])
+                if not last:
+                    note = "  (tie check skipped: no numbers in the output)"
+                elif last == after:
+                    note = f"  <-- TIE AT CUTOFF with {rows[n]}"
+        print(f"{q['id']:3} {result['row_count']:3} rows  {result['rows'][:3]}{note}")
 
 
 def safety_outcome(result: dict) -> str:
