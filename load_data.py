@@ -1,7 +1,13 @@
-"""One-time script: copy Chinook tables from SQLite into a DuckDB file."""
+"""Load Chinook from SQLite into DuckDB, then run data-quality checks.
+
+Exits with code 1 if any check fails, so a bad load never goes unnoticed.
+"""
+import sys
 from pathlib import Path
 
 import duckdb
+
+from quality import print_report, run_all_checks
 
 SQLITE_FILE = Path("data/Chinook_Sqlite.sqlite")
 DUCKDB_FILE = Path("data/chinook.duckdb")
@@ -23,11 +29,16 @@ def main():
 
     for table in TABLES:
         con.execute(f'CREATE TABLE "{table}" AS SELECT * FROM src."{table}"')
-        count = con.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
-        print(f"{table:15} {count} rows")
+        print(f"Loaded {table}")
 
+    # CREATE TABLE AS copies the data but not the keys/constraints,
+    # so we verify keys, required values and relationships ourselves.
+    results = run_all_checks(con, TABLES)
     con.close()
-    print(f"\nDone. Created {DUCKDB_FILE}")
+    print(f"\nCreated {DUCKDB_FILE}")
+
+    if not print_report(results):
+        sys.exit(1)
 
 
 if __name__ == "__main__":
